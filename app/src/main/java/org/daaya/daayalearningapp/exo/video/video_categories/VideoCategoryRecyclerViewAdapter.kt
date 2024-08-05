@@ -49,13 +49,19 @@ class VideoCategoryRecyclerViewAdapter(
         }
     }
 
-    private fun capitalizeFirstLetter(input1 :String?): String {
-        input1?.apply {
-            val input = lowercase()
-            val s1: String = input.substring(0, 1).uppercase()
-            return s1 + input.substring(1)
+    companion object {
+        fun capitalizeFirstLetter(input1: String?): String {
+            input1?.apply {
+                val input = lowercase()
+                val s1: String = input.substring(0, 1).uppercase()
+                return s1 + input.substring(1)
+            }
+            return ""
         }
-        return ""
+    }
+
+    fun getItemAt(position: Int): String {
+        return values[position]
     }
 
 

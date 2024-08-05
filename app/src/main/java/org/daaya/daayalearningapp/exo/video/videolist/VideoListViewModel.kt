@@ -44,6 +44,7 @@ class VideoListViewModel : ViewModel() {
         val taxonomyOrders: MutableMap<String, MutableSet<String>>,
         val taxonomyFamilies: MutableMap<String, MutableSet<String>>,
         val taxonomyTribes: MutableMap<String, MutableSet<DaayaVideo>>,
+        val videos: MutableMap<String, DaayaVideo>,
     )
 
     companion object {
@@ -52,6 +53,7 @@ class VideoListViewModel : ViewModel() {
             val taxonomyOrders: MutableMap<String, MutableSet<String>> = mutableMapOf()
             val taxonomyFamilies: MutableMap<String, MutableSet<String>> = mutableMapOf()
             val taxonomyTribes: MutableMap<String, MutableSet<DaayaVideo>> = mutableMapOf()
+            val videos: MutableMap<String, DaayaVideo> = mutableMapOf()
             for (video in allVideos) {
                 val taxonomyClas = video.taxonomy.clas
                 val taxonomyOrder = video.taxonomy.order
@@ -83,8 +85,10 @@ class VideoListViewModel : ViewModel() {
                     genuses
                 }.add(video)
 
+                videos[video.title] = video
+
             }
-            return VideoTaxonomyDetails(taxonomyClasses, taxonomyOrders, taxonomyFamilies, taxonomyTribes)
+            return VideoTaxonomyDetails(taxonomyClasses, taxonomyOrders, taxonomyFamilies, taxonomyTribes, videos)
         }
     }
 }

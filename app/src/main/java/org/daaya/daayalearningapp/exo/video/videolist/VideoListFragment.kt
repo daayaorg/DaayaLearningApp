@@ -62,9 +62,11 @@ class VideoListFragment : Fragment(), VideoListAdapter.OnItemClickListener {
     }
 
 
-    fun getUrl(filename: String): String {
-        return DaayaAndroidApplication.baseUrl + "api/v1/stream/" + filename
-        //"http://48.217.169.49:8182/api/v1/stream/video1";
+    companion object {
+        fun getUrl(filename: String): String {
+            return DaayaAndroidApplication.baseUrl + "api/v1/stream/" + filename
+            //"http://48.217.169.49:8182/api/v1/stream/video1";
+        }
     }
 
     override fun onItemClick(position: Int) {
