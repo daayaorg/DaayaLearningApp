@@ -1,0 +1,144 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.kotlin.android)
+}
+
+android {
+    def SP =  [ "en", "es", "fr" ]
+    namespace 'org.daaya.daayalearningapp.exo'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "org.daaya.daayalearningapp.exo"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        def BUILD_SUPPORTED_LANGUAGES = "BUILD_SUPPORTED_LANGUAGES"
+        def languages = "{"
+        for (String lang:SP)
+            languages += "\"" + lang + "\","
+        languages += "}"
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String[]", BUILD_SUPPORTED_LANGUAGES, languages
+        }
+        debug {
+            jniDebuggable true
+            buildConfigField "String[]", BUILD_SUPPORTED_LANGUAGES, languages
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+        buildConfig  true
+    }
+}
+
+dependencies {
+    implementation libs.androidx.legacy.support.v4
+    def media3_version = "1.4.0"
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.multidex
+    implementation libs.timber
+    implementation libs.converter.gson
+    implementation libs.adapter.rxjava
+    implementation libs.logging.interceptor
+    implementation libs.gson
+    implementation libs.retrofit
+    implementation libs.joda.time
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.lifecycle.livedata.ktx
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    implementation libs.androidx.navigation.fragment.ktx
+    implementation libs.androidx.navigation.ui.ktx
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+
+
+        // For media playback using ExoPlayer
+        implementation libs.androidx.media3.exoplayer
+
+        // For DASH playback support with ExoPlayer
+        implementation libs.androidx.media3.exoplayer.dash
+        // For HLS playback support with ExoPlayer
+        implementation libs.androidx.media3.exoplayer.hls
+        // For SmoothStreaming playback support with ExoPlayer
+        implementation libs.androidx.media3.exoplayer.smoothstreaming
+        // For RTSP playback support with ExoPlayer
+        implementation libs.androidx.media3.exoplayer.rtsp
+        // For MIDI playback support with ExoPlayer (see additional dependency requirements in
+        // https://github.com/androidx/media/blob/release/libraries/decoder_midi/README.md)
+        //implementation libs.androidx.media3.exoplayer.midi
+        // For ad insertion using the Interactive Media Ads SDK with ExoPlayer
+        implementation libs.androidx.media3.exoplayer.ima
+
+        // For loading data using the Cronet network stack
+        implementation libs.androidx.media3.datasource.cronet
+        // For loading data using the OkHttp network stack
+        implementation libs.androidx.media3.datasource.okhttp
+        // For loading data using librtmp
+        implementation libs.androidx.media3.datasource.rtmp
+
+        // For building media playback UIs
+        implementation libs.androidx.media3.ui
+        // For building media playback UIs for Android TV using the Jetpack Leanback library
+        implementation libs.androidx.media3.ui.leanback
+
+        // For exposing and controlling media sessions
+        implementation libs.androidx.media3.session
+
+        // For extracting data from media containers
+        implementation libs.androidx.media3.extractor
+
+        // For integrating with Cast
+        implementation libs.androidx.media3.cast
+
+        // For scheduling background operations using Jetpack Work's WorkManager with ExoPlayer
+        implementation libs.androidx.media3.exoplayer.workmanager
+
+        // For transforming media files
+        implementation libs.androidx.media3.transformer
+
+        // For applying effects on video frames
+        implementation libs.androidx.media3.effect
+
+        // For muxing media files
+        implementation libs.androidx.media3.muxer
+
+        // Utilities for testing media components (including ExoPlayer components)
+        implementation libs.androidx.media3.test.utils
+        // Utilities for testing media components (including ExoPlayer components) via Robolectric
+        implementation libs.androidx.media3.test.utils.robolectric
+
+        // Common functionality for reading and writing media containers
+        implementation libs.androidx.media3.container
+        // Common functionality for media database components
+        implementation libs.androidx.media3.database
+        // Common functionality for media decoders
+        implementation libs.androidx.media3.decoder
+        // Common functionality for loading data
+        implementation libs.androidx.media3.datasource
+        // Common functionality used across multiple media libraries
+        implementation libs.androidx.media3.common
+}
