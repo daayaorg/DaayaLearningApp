@@ -11,7 +11,7 @@ import androidx.collection.SparseArrayCompat;
 
 import org.daaya.daayalearningapp.exo.DaayaAndroidApplication;
 import org.daaya.daayalearningapp.exo.R;
-import org.daaya.daayalearningapp.exo.video.VideoActivity;
+import org.daaya.daayalearningapp.exo.ui.video.VideoActivity;
 
 import java.lang.reflect.Field;
 

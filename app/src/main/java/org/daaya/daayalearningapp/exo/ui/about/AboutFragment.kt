@@ -1,4 +1,4 @@
-package org.daaya.daayalearningapp.exo.ui.reflow
+package org.daaya.daayalearningapp.exo.ui.about
 
 import android.os.Bundle
 import android.view.LayoutInflater

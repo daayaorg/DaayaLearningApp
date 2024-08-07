@@ -1,6 +1,5 @@
-package org.daaya.daayalearningapp.exo.ui.reflow
+package org.daaya.daayalearningapp.exo.ui.about
 
-import android.text.Html
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

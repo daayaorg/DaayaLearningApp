@@ -1,4 +1,4 @@
-package org.daaya.daayalearningapp.exo.video.video_categories
+package org.daaya.daayalearningapp.exo.ui.video.video_categories
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,13 +9,14 @@ import kotlinx.coroutines.launch
 import org.daaya.daayalearningapp.exo.DaayaAndroidApplication
 import org.daaya.daayalearningapp.exo.network.DaayaVideoService
 import org.daaya.daayalearningapp.exo.network.objects.DaayaVideo
-import org.daaya.daayalearningapp.exo.video.video_categories.VideoCategoryRecyclerViewAdapter.Companion.capitalizeFirstLetter
-import org.daaya.daayalearningapp.exo.video.videolist.VideoListViewModel
-import org.daaya.daayalearningapp.exo.video.videolist.VideoListViewModel.Companion.categorizeVideoList
+import org.daaya.daayalearningapp.exo.ui.video.video_categories.VideoCategoryRecyclerViewAdapter.Companion.capitalizeFirstLetter
+import org.daaya.daayalearningapp.exo.ui.video.videolist.VideoListViewModel
+import org.daaya.daayalearningapp.exo.ui.video.videolist.VideoListViewModel.Companion.categorizeVideoList
 import java.util.Stack
 
 class VideoCategoriesViewModel : ViewModel() {
-
+    private val _itemList = MutableLiveData<List<String>>()
+    val itemList: LiveData<List<String>> = _itemList
     private val _text = MutableLiveData<String>().apply {
         value = "Choose one"
     }
@@ -24,14 +25,12 @@ class VideoCategoriesViewModel : ViewModel() {
     private var taxonomyLevel = TaxonomyLevel.CLASS
     private var taxonomySelection = ""
     private var taxonomySelectionHierarchy = Stack<String>()
-    private lateinit var taxonomyDetails:VideoListViewModel.VideoTaxonomyDetails
-    private val _itemList = MutableLiveData<List<String>>()
-    val itemList: LiveData<List<String>> = _itemList
+    private lateinit var taxonomyDetails: VideoListViewModel.VideoTaxonomyDetails
     private val daayaVideoService: DaayaVideoService =
         DaayaVideoService.Creator.newDaayaVideoService(DaayaAndroidApplication.baseUrl)
     private fun getAllVideos() {
         viewModelScope.launch(Dispatchers.IO) {
-            var allVideos = emptyList<DaayaVideo>()
+            val allVideos: List<DaayaVideo>
             try {
                 allVideos = daayaVideoService.getAllVideos()
                 taxonomyDetails = categorizeVideoList(allVideos)
@@ -47,29 +46,27 @@ class VideoCategoriesViewModel : ViewModel() {
 
 
 
-    fun getPrevTaxonomyLevel (): TaxonomyLevel {
+    private fun getPrevTaxonomyLevel (): TaxonomyLevel {
         return when (taxonomyLevel) {
             TaxonomyLevel.CLASS -> TaxonomyLevel.CLASS
             TaxonomyLevel.ORDER -> TaxonomyLevel.CLASS
-            TaxonomyLevel.FAMILY ->TaxonomyLevel.ORDER
+            TaxonomyLevel.FAMILY -> TaxonomyLevel.ORDER
             TaxonomyLevel.TRIBE -> TaxonomyLevel.FAMILY
             TaxonomyLevel.VIDEO -> TaxonomyLevel.TRIBE
             else -> throw RuntimeException()
         }
     }
 
-    fun getNextTaxonomyLevel (): TaxonomyLevel {
+    private fun getNextTaxonomyLevel (): TaxonomyLevel {
         return when (taxonomyLevel) {
             TaxonomyLevel.CLASS -> TaxonomyLevel.ORDER
             TaxonomyLevel.ORDER -> TaxonomyLevel.FAMILY
-            TaxonomyLevel.FAMILY ->TaxonomyLevel.TRIBE
+            TaxonomyLevel.FAMILY -> TaxonomyLevel.TRIBE
             TaxonomyLevel.TRIBE -> TaxonomyLevel.VIDEO
             TaxonomyLevel.VIDEO -> TaxonomyLevel.VIDEO
             else -> throw RuntimeException()
         }
     }
-
-    fun getCurrentTaxonomyLevel(): TaxonomyLevel = taxonomyLevel
 
     private fun addTaxonomySelection(taxonomy:String) {
         taxonomySelectionHierarchy.add(taxonomy)
@@ -78,7 +75,7 @@ class VideoCategoriesViewModel : ViewModel() {
         _text.value = concated
     }
 
-    fun select(item: String):GetListOrString {
+    fun select(item: String): GetListOrString {
         addTaxonomySelection(item)
         taxonomySelection = item
         taxonomyLevel = getNextTaxonomyLevel()
@@ -160,7 +157,7 @@ class VideoCategoriesViewModel : ViewModel() {
     }
 
 
-    enum class TaxonomyLevel  {
+    private enum class TaxonomyLevel  {
         CLASS, ORDER,  FAMILY, TRIBE, GENUS, VIDEO
     }
     init{
