@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/nav_video_categories_view"
-        android:name="org.daaya.daayalearningapp.exo.video.video_categories.VideoCategoriesFragment"
+        android:name="org.daaya.daayalearningapp.exo.ui.video.video_categories.VideoCategoriesFragment"
         android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/fragment_video_categories" />
 
     <fragment
         android:id="@+id/nav_video_list_view"
-        android:name="org.daaya.daayalearningapp.exo.video.videolist.VideoListFragment"
+        android:name="org.daaya.daayalearningapp.exo.ui.video.videolist.VideoListFragment"
         android:label="@string/menu_video_list"
         tools:layout="@layout/fragment_video_list" />
 
     <fragment
         android:id="@+id/nav_about"
-        android:name="org.daaya.daayalearningapp.exo.ui.reflow.AboutFragment"
+        android:name="org.daaya.daayalearningapp.exo.ui.about.AboutFragment"
         android:label="@string/menu_about"
         tools:layout="@layout/fragment_about" />
 

@@ -1,4 +1,4 @@
-package org.daaya.daayalearningapp.exo.video.video_categories
+package org.daaya.daayalearningapp.exo.ui.video.video_categories
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,16 +12,14 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import org.daaya.daayalearningapp.exo.databinding.FragmentSlideshowBinding
-import org.daaya.daayalearningapp.exo.databinding.FragmentVideoCategoryBinding
-import org.daaya.daayalearningapp.exo.video.VideoActivity
-import org.daaya.daayalearningapp.exo.video.videolist.VideoListAdapter
-import org.daaya.daayalearningapp.exo.video.videolist.VideoListFragment.Companion.getUrl
+import org.daaya.daayalearningapp.exo.databinding.FragmentVideoCategoriesBinding
+import org.daaya.daayalearningapp.exo.ui.video.VideoActivity
+import org.daaya.daayalearningapp.exo.ui.video.videolist.VideoListAdapter
+import org.daaya.daayalearningapp.exo.ui.video.videolist.VideoListFragment.Companion.getUrl
 
 class VideoCategoriesFragment : Fragment(), VideoListAdapter.OnItemClickListener {
     private lateinit var videoCategoriesViewModel : VideoCategoriesViewModel
-    private var _binding: FragmentSlideshowBinding? = null
-    private var _binding1: FragmentVideoCategoryBinding? = null
+    private var _binding: FragmentVideoCategoriesBinding? = null
     private lateinit var callback: OnBackPressedCallback
 
     // This property is only valid between onCreateView and
@@ -32,14 +30,10 @@ class VideoCategoriesFragment : Fragment(), VideoListAdapter.OnItemClickListener
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentSlideshowBinding.inflate(inflater, container, false)
-        _binding1 = FragmentVideoCategoryBinding.inflate(inflater, container, false)
+        savedInstanceState: Bundle?): View {
+        _binding = FragmentVideoCategoriesBinding.inflate(inflater, container, false)
         val root: View = binding.root
         textView = binding.textSlideshow
-
-
 
         videoCategoriesViewModel = ViewModelProvider(this)[VideoCategoriesViewModel::class.java]
         videoCategoriesViewModel.itemList.observe(viewLifecycleOwner) {
@@ -51,7 +45,7 @@ class VideoCategoriesFragment : Fragment(), VideoListAdapter.OnItemClickListener
             textView.text = it
         }
 
-        // This callback is only called when MyFragment is at least started
+        // This callback is only called when Fragment is at least started
         callback = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             val handled = videoCategoriesViewModel.handleBackPressed()
             callback.isEnabled = handled

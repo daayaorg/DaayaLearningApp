@@ -1,11 +1,11 @@
-package org.daaya.daayalearningapp.exo.video.video_categories
+package org.daaya.daayalearningapp.exo.ui.video.video_categories
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import org.daaya.daayalearningapp.exo.databinding.FragmentVideoCategoryBinding
-import org.daaya.daayalearningapp.exo.video.videolist.VideoListAdapter.OnItemClickListener
+import org.daaya.daayalearningapp.exo.databinding.VideoCategoryItemBinding
+import org.daaya.daayalearningapp.exo.ui.video.videolist.VideoListAdapter.OnItemClickListener
 
 
 /**
@@ -18,7 +18,7 @@ class VideoCategoryRecyclerViewAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoCategoryViewHolder {
         return VideoCategoryViewHolder(
-            FragmentVideoCategoryBinding.inflate(
+            VideoCategoryItemBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
@@ -36,7 +36,7 @@ class VideoCategoryRecyclerViewAdapter(
 
     override fun getItemCount(): Int = values.size
 
-    inner class VideoCategoryViewHolder(binding: FragmentVideoCategoryBinding) :
+    inner class VideoCategoryViewHolder(binding: VideoCategoryItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         val idView: TextView = binding.itemName
     }

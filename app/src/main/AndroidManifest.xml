@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".video.VideoActivity"
+            android:name=".ui.video.VideoActivity"
             android:exported="true"
             android:resizeableActivity="true"
             android:theme="@style/Theme.DaayaLearningApp.NoActionBar"

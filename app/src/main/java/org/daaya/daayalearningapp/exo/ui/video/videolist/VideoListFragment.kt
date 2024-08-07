@@ -1,12 +1,13 @@
-package org.daaya.daayalearningapp.exo.video.videolist
+package org.daaya.daayalearningapp.exo.ui.video.videolist
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -14,8 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import org.daaya.daayalearningapp.exo.DaayaAndroidApplication
 import org.daaya.daayalearningapp.exo.databinding.FragmentVideoListBinding
-import org.daaya.daayalearningapp.exo.databinding.ItemVideoListBinding
-import org.daaya.daayalearningapp.exo.video.VideoActivity
+import org.daaya.daayalearningapp.exo.ui.video.VideoActivity
 
 /**
  * Fragment that demonstrates a responsive layout pattern where the format of the content
@@ -26,6 +26,9 @@ import org.daaya.daayalearningapp.exo.video.VideoActivity
 class VideoListFragment : Fragment(), VideoListAdapter.OnItemClickListener {
 
     private var _binding: FragmentVideoListBinding? = null
+    private lateinit var videoListViewModel: VideoListViewModel
+    private lateinit var callback: OnBackPressedCallback
+    private lateinit var textView: TextView
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -34,18 +37,29 @@ class VideoListFragment : Fragment(), VideoListAdapter.OnItemClickListener {
 
     override fun onCreateView(
         inflater: LayoutInflater,
-        container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
+        container: ViewGroup?, savedInstanceState: Bundle?): View {
 
-        val videoListViewModel = ViewModelProvider(this).get(VideoListViewModel::class.java)
-        videoListViewModel.getAllVideos()
+        videoListViewModel = ViewModelProvider(this)[VideoListViewModel::class.java]
         _binding = FragmentVideoListBinding.inflate(inflater, container, false)
         val root: View = binding.root
         val recyclerView = binding.recyclerviewTransform
+        textView = binding.textHeader
         recyclerView.adapter = adapter
-        videoListViewModel.videos.observe(viewLifecycleOwner) {
+        videoListViewModel.itemList.observe(viewLifecycleOwner) {
+            adapter.hideIcons(videoListViewModel.hideIcons())
             adapter.submitList(it)
         }
+        videoListViewModel.text.observe(viewLifecycleOwner) {
+            textView.text = it
+        }
+
+
+        // This callback is only called when Fragment is at least started
+        callback = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            val handled = videoListViewModel.handleBackPressed()
+            callback.isEnabled = handled
+        }
+        callback.isEnabled = true
 
         return root
     }
@@ -55,25 +69,35 @@ class VideoListFragment : Fragment(), VideoListAdapter.OnItemClickListener {
         _binding = null
     }
 
-    class VideoListViewHolder(binding: ItemVideoListBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        val imageView: ImageView = binding.imageViewItemTransform
-        val textView: TextView = binding.textViewItemTransform
-    }
-
 
     companion object {
         fun getUrl(filename: String): String {
             return DaayaAndroidApplication.baseUrl + "api/v1/stream/" + filename
-            //"http://48.217.169.49:8182/api/v1/stream/video1";
         }
     }
 
-    override fun onItemClick(position: Int) {
+    /*
+    fun onItemClick1(position: Int) {
         adapter.getItemAt(position)?.apply {
             val intent = Intent(context, VideoActivity::class.java)
             intent.putExtra(VideoActivity.ARG_VIDEO, this)
             intent.putExtra(VideoActivity.ARG_VIDEO_URL, getUrl(filename))
+            ActivityOptionsCompat.makeBasic();
+            ContextCompat.startActivity(requireContext(), intent, null)
+        }
+    }
+
+     */
+
+    override fun onItemClick(position: Int) {
+        val listOrString = videoListViewModel.select(adapter.getItemAt(position))
+        if (!listOrString.isList){
+            val video = videoListViewModel.getVideo()
+            val intent = Intent(context, VideoActivity::class.java)
+            intent.putExtra(VideoActivity.ARG_VIDEO_URL, getUrl(listOrString.str))
+            video?.apply {
+                intent.putExtra(VideoActivity.ARG_VIDEO, video)
+            }
             ActivityOptionsCompat.makeBasic();
             ContextCompat.startActivity(requireContext(), intent, null)
         }

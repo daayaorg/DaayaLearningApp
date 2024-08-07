@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".video.video_categories.VideoCategoriesFragment">
+    tools:context=".ui.video.video_categories.VideoCategoriesFragment">
 
     <TextView
         android:id="@+id/text_slideshow"
@@ -30,6 +30,6 @@
         android:layout_marginRight="16dp"
         app:layoutManager="LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/text_slideshow"
-        tools:context=".video.video_categories.VideoCategoriesFragment"
-        tools:listitem="@layout/fragment_video_category" />
+        tools:context=".ui.video.video_categories.VideoCategoriesFragment"
+        tools:listitem="@layout/video_category_item" />
 </androidx.constraintlayout.widget.ConstraintLayout>

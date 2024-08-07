@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.daaya.daayalearningapp.exo.video;
+package org.daaya.daayalearningapp.exo.ui.video;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
-import androidx.media3.common.C;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
@@ -35,7 +32,6 @@ import androidx.media3.common.util.Log;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import javax.microedition.khronos.opengles.GL10;
 
