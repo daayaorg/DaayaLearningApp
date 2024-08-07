@@ -13,11 +13,12 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<FrameLayout
+<LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
+    android:orientation="vertical"
   android:keepScreenOn="true">
 
   <androidx.media3.ui.PlayerView
@@ -26,4 +27,16 @@
     android:layout_height="wrap_content"
     app:surface_type="none"/>
 
-</FrameLayout>
+  <ScrollView
+      android:layout_margin="@dimen/text_margin"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+    >
+  <TextView
+      android:id="@+id/video_description"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+    />
+  </ScrollView>
+
+</LinearLayout>

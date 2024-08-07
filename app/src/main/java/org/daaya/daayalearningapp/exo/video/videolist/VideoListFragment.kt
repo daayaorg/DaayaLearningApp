@@ -72,6 +72,7 @@ class VideoListFragment : Fragment(), VideoListAdapter.OnItemClickListener {
     override fun onItemClick(position: Int) {
         adapter.getItemAt(position)?.apply {
             val intent = Intent(context, VideoActivity::class.java)
+            intent.putExtra(VideoActivity.ARG_VIDEO, this)
             intent.putExtra(VideoActivity.ARG_VIDEO_URL, getUrl(filename))
             ActivityOptionsCompat.makeBasic();
             ContextCompat.startActivity(requireContext(), intent, null)

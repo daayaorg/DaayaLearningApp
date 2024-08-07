@@ -10,6 +10,7 @@
 
     <color name="yellow_primary">#f2c653</color>
     <color name="saffron_primary">#c9771f</color>
+    <color name="saffron_variant">#b9671f</color>
 
     <color name="textColorPrimary">#ff111111</color>
     <color name="windowBackground">#ffe8e8e8</color>
@@ -157,4 +158,6 @@
     <color name="bg_recorded_util_button_pressed">#50ffffff</color>
     <color name="bg_recorded_util_seekbar_progress">#2F5A86</color>
     <color name="background_dark">#FF181818</color>
+
+    <color name="listSeparatorColor">@color/grey_semi_transparent</color>
 </resources>

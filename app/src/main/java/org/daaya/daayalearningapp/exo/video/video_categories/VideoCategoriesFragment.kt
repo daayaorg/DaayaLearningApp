@@ -69,8 +69,12 @@ class VideoCategoriesFragment : Fragment(), VideoListAdapter.OnItemClickListener
     override fun onItemClick(position: Int) {
         val listOrString = videoCategoriesViewModel.select(adapter.getItemAt(position))
         if (!listOrString.isList){
+            val video = videoCategoriesViewModel.getVideo()
             val intent = Intent(context, VideoActivity::class.java)
             intent.putExtra(VideoActivity.ARG_VIDEO_URL, getUrl(listOrString.str))
+            video?.apply {
+                intent.putExtra(VideoActivity.ARG_VIDEO, video)
+            }
             ActivityOptionsCompat.makeBasic();
             ContextCompat.startActivity(requireContext(), intent, null)
         }

@@ -2,7 +2,6 @@ package org.daaya.daayalearningapp.exo
 
 import android.os.Bundle
 import android.view.Menu
-import android.view.MenuItem
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -40,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.navView?.let {
             appBarConfiguration = AppBarConfiguration(
-                setOf(R.id.nav_transform, R.id.nav_reflow, R.id.nav_slideshow),//, R.id.nav_settings),
+                setOf(R.id.nav_about, R.id.nav_video_list_view, R.id.nav_video_categories_view),//, R.id.nav_settings),
                 binding.drawerLayout
             )
             setupActionBarWithNavController(navController, appBarConfiguration)
@@ -49,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.appBarMain.contentMain.bottomNavView?.let {
             appBarConfiguration = AppBarConfiguration(
-                setOf(R.id.nav_transform, R.id.nav_reflow, R.id.nav_slideshow)
+                setOf(R.id.nav_about, R.id.nav_video_list_view, R.id.nav_video_categories_view)
             )
             setupActionBarWithNavController(navController, appBarConfiguration)
             it.setupWithNavController(navController)

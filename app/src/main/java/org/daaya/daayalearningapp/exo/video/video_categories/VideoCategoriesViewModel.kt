@@ -17,7 +17,7 @@ import java.util.Stack
 class VideoCategoriesViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "Categorized Videos"
+        value = "Choose one"
     }
     val text: LiveData<String> = _text
 
@@ -73,9 +73,8 @@ class VideoCategoriesViewModel : ViewModel() {
 
     private fun addTaxonomySelection(taxonomy:String) {
         taxonomySelectionHierarchy.add(taxonomy)
-        val concated = taxonomySelectionHierarchy.reduce{ acc, item ->
-            "$acc/${capitalizeFirstLetter(item)}"
-        }
+        val concated = taxonomySelectionHierarchy.map{ capitalizeFirstLetter(it) }
+                                                 .reduce { acc, item -> "$acc/${item}" }
         _text.value = concated
     }
 
@@ -149,6 +148,15 @@ class VideoCategoriesViewModel : ViewModel() {
             _text.value = concated
         }
         return true
+    }
+
+    fun getVideo(): DaayaVideo? {
+        if (taxonomyLevel == TaxonomyLevel.VIDEO) {
+            val filename = taxonomyDetails.taxonomyTribes[taxonomySelection]
+            return filename?.toList()?.get(0)
+        } else {
+            return null
+        }
     }
 
 

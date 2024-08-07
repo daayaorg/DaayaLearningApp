@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -51,6 +52,7 @@ import androidx.media3.ui.PlayerView;
 
 import org.daaya.daayalearningapp.exo.DaayaAndroidApplication;
 import org.daaya.daayalearningapp.exo.R;
+import org.daaya.daayalearningapp.exo.network.objects.DaayaVideo;
 
 import java.util.UUID;
 
@@ -59,6 +61,7 @@ import java.util.UUID;
  * postprocessing of the video content using GL.
  */
 public final class VideoActivity extends Activity {
+    public static String ARG_VIDEO = "ARG_VIDEO";
     public static String ARG_VIDEO_URL = "ARG_VIDEO_URL";
     private static final String TAG = "MainActivity";
     private String mediaUri = DaayaAndroidApplication.baseUrl + "api/v1/stream/video1";
@@ -69,6 +72,7 @@ public final class VideoActivity extends Activity {
 
     @Nullable
     private PlayerView playerView;
+    private TextView videoDesc;
     @Nullable
     private VideoProcessingGLSurfaceView videoProcessingGLSurfaceView;
 
@@ -81,7 +85,12 @@ public final class VideoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_activity);
         playerView = findViewById(R.id.player_view);
+        videoDesc = findViewById(R.id.video_description);
 
+        if (getIntent().hasExtra(ARG_VIDEO)) {
+            DaayaVideo video = getIntent().getParcelableExtra(ARG_VIDEO);
+            videoDesc.setText(video.description);
+        }
         String url = getIntent().getStringExtra(ARG_VIDEO_URL);
         if (!TextUtils.isEmpty(url)) {
             mediaUri = url;
