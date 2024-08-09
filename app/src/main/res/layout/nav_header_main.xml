@@ -8,6 +8,7 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!--
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
@@ -15,10 +16,21 @@
         android:contentDescription="@string/nav_header_desc"
         android:paddingTop="8dp"
         app:srcCompat="@mipmap/ic_launcher_round" />
+        -->
+
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:contentDescription="@string/nav_header_desc"
+        android:paddingTop="8dp"
+        app:srcCompat="@drawable/daaya" />
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:paddingTop="8dp"
         android:text="@string/nav_header_title" />
 
@@ -26,5 +38,6 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="@string/nav_header_subtitle" />
 </LinearLayout>
