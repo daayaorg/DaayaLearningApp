@@ -21,6 +21,8 @@ import static java.util.Objects.requireNonNull;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.net.http.HttpEngine;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.FrameLayout;
@@ -36,9 +38,18 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.database.DatabaseProvider;
+import androidx.media3.database.StandaloneDatabaseProvider;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.datasource.HttpEngineDataSource;
+import androidx.media3.datasource.cache.Cache;
+import androidx.media3.datasource.cache.CacheDataSource;
+import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor;
+import androidx.media3.datasource.cache.SimpleCache;
+import androidx.media3.datasource.cronet.CronetDataSource;
+import androidx.media3.datasource.cronet.CronetUtil;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.drm.DefaultDrmSessionManager;
@@ -50,13 +61,22 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 import androidx.media3.exoplayer.util.EventLogger;
 import androidx.media3.ui.PlayerView;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.chromium.net.CronetEngine;
 import org.daaya.daayalearningapp.exo.DaayaAndroidApplication;
 import org.daaya.daayalearningapp.exo.R;
 import org.daaya.daayalearningapp.exo.network.objects.DaayaVideo;
 
+import java.io.File;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import timber.log.Timber;
 
 /**
  * Activity that demonstrates playback of video to an {@link android.opengl.GLSurfaceView} with
@@ -75,10 +95,12 @@ public final class VideoActivity extends AppCompatActivity {
     @Nullable
     private PlayerView playerView;
     @Nullable
+    @UnstableApi
     private VideoProcessingGLSurfaceView videoProcessingGLSurfaceView;
 
     @Nullable
     private ExoPlayer player;
+
 
     @OptIn(markerClass = UnstableApi.class)
     @Override
@@ -156,8 +178,8 @@ public final class VideoActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String action = intent.getAction();
         Uri uri = ACTION_VIEW.equals(action)
-                        ? requireNonNull(intent.getData())
-                        : Uri.parse(mediaUri);
+                ? requireNonNull(intent.getData())
+                : Uri.parse(mediaUri);
         DrmSessionManager drmSessionManager;
         if (intent.hasExtra(DRM_SCHEME_EXTRA)) {
             String drmScheme = requireNonNull(intent.getStringExtra(DRM_SCHEME_EXTRA));
@@ -174,7 +196,8 @@ public final class VideoActivity extends AppCompatActivity {
             drmSessionManager = DrmSessionManager.DRM_UNSUPPORTED;
         }
 
-        DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
+        //DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
+        DataSource.Factory dataSourceFactory = getDataSourceFactory(this);
         MediaSource mediaSource;
         @Nullable String fileExtension = intent.getStringExtra(EXTENSION_EXTRA);
         @C.ContentType
@@ -209,6 +232,7 @@ public final class VideoActivity extends AppCompatActivity {
         this.player = player;
     }
 
+    @OptIn(markerClass = UnstableApi.class)
     private void releasePlayer() {
         requireNonNull(playerView).setPlayer(null);
         requireNonNull(videoProcessingGLSurfaceView).setPlayer(null);
@@ -217,4 +241,115 @@ public final class VideoActivity extends AppCompatActivity {
             player = null;
         }
     }
+
+
+    private static final boolean ALLOW_CRONET_FOR_NETWORKING = false;
+    private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
+
+    private static @MonotonicNonNull File downloadDirectory;
+
+    @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
+    private static @MonotonicNonNull Cache downloadCache;
+
+    @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
+    private static @MonotonicNonNull DatabaseProvider databaseProvider;
+
+    private static final int MAX_CACHE_SIZE = 500_000_000;
+    private static final int FRAGMENT_SIZE = 120 * 1024 * 1024;
+
+
+    @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
+    private static synchronized Cache getDownloadCache(Context context) {
+        if (downloadCache == null) {
+            File downloadContentDirectory = new File(getDownloadDirectory(context),
+                    DOWNLOAD_CONTENT_DIRECTORY);
+            downloadCache = new SimpleCache(downloadContentDirectory,
+                    new LeastRecentlyUsedCacheEvictor(MAX_CACHE_SIZE),
+                    getDatabaseProvider(context));
+        }
+        return downloadCache;
+    }
+
+
+    private static synchronized File getDownloadDirectory(Context context) {
+        if (downloadDirectory == null) {
+            downloadDirectory = context.getExternalFilesDir(/* type= */ null);
+            if (downloadDirectory == null) {
+                downloadDirectory = context.getFilesDir();
+            }
+        }
+        Timber.e("downloadDirectory = %s", downloadDirectory.getAbsolutePath());
+        return downloadDirectory;
+    }
+
+
+    @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
+    private static synchronized DatabaseProvider getDatabaseProvider(Context context) {
+        if (databaseProvider == null) {
+            databaseProvider = new StandaloneDatabaseProvider(context);
+        }
+        return databaseProvider;
+    }
+
+    private static DataSource.@MonotonicNonNull Factory dataSourceFactory;
+    private static DataSource.@MonotonicNonNull Factory httpDataSourceFactory;
+
+    @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
+    public static synchronized DataSource.Factory getHttpDataSourceFactory(Context context) {
+        if (httpDataSourceFactory != null) {
+            return httpDataSourceFactory;
+        }
+        context = context.getApplicationContext();
+        if (Build.VERSION.SDK_INT >= 34) {
+            HttpEngine httpEngine = new HttpEngine.Builder(context).build();
+            httpDataSourceFactory =
+                    new HttpEngineDataSource.Factory(httpEngine, Executors.newSingleThreadExecutor());
+            return httpDataSourceFactory;
+        }
+        if (ALLOW_CRONET_FOR_NETWORKING) {
+            @org.checkerframework.checker.nullness.qual.Nullable
+            CronetEngine cronetEngine = CronetUtil.buildCronetEngine(context);
+            if (cronetEngine != null) {
+                httpDataSourceFactory =
+                        new CronetDataSource.Factory(cronetEngine, Executors.newSingleThreadExecutor());
+                return httpDataSourceFactory;
+            }
+        }
+        // The device doesn't support HttpEngine or we don't want to allow Cronet, or we failed to
+        // instantiate a CronetEngine.
+        CookieManager cookieManager = new CookieManager();
+        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+        CookieHandler.setDefault(cookieManager);
+        httpDataSourceFactory = new DefaultHttpDataSource.Factory();
+        return httpDataSourceFactory;
+    }
+
+
+    @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
+    private static CacheDataSource.Factory buildReadOnlyCacheDataSource(
+            DataSource.Factory upstreamFactory, Cache cache) {
+
+        AtomicBoolean dontWrite = new AtomicBoolean(/* initialValue= */ false);
+        CustomDataSink.Factory dataSinkFactory = new CustomDataSink.Factory(downloadCache, FRAGMENT_SIZE, dontWrite);
+
+        return new CacheDataSource.Factory()
+                .setCache(cache)
+                .setUpstreamDataSourceFactory(upstreamFactory)
+                .setCacheWriteDataSinkFactory(dataSinkFactory)
+                .setFlags(CacheDataSource.FLAG_BLOCK_ON_CACHE | CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
+    }
+
+    /**
+     * Returns a {@link DataSource.Factory}.
+     */
+    public static synchronized DataSource.Factory getDataSourceFactory(Context context) {
+        if (dataSourceFactory == null) {
+            context = context.getApplicationContext();
+            DefaultDataSource.Factory upstreamFactory =
+                    new DefaultDataSource.Factory(context, getHttpDataSourceFactory(context));
+            dataSourceFactory = buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache(context));
+        }
+        return dataSourceFactory;
+    }
+
 }
