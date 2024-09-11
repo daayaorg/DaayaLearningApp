@@ -22,8 +22,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:resizeableActivity="true"
-            android:theme="@style/Theme.DaayaLearningApp.NoActionBar"
-            >
+            android:theme="@style/Theme.DaayaLearningApp.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -18,7 +18,6 @@ package org.daaya.daayalearningapp.exo.ui.video;
 
 import static java.util.Objects.requireNonNull;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -30,6 +29,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
@@ -56,14 +56,16 @@ import org.daaya.daayalearningapp.exo.network.objects.DaayaVideo;
 
 import java.util.UUID;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 /**
  * Activity that demonstrates playback of video to an {@link android.opengl.GLSurfaceView} with
  * postprocessing of the video content using GL.
  */
-public final class VideoActivity extends Activity {
+@AndroidEntryPoint
+public final class VideoActivity extends AppCompatActivity {
     public static String ARG_VIDEO = "ARG_VIDEO";
     public static String ARG_VIDEO_URL = "ARG_VIDEO_URL";
-    private static final String TAG = "MainActivity";
     private String mediaUri = DaayaAndroidApplication.baseUrl + "api/v1/stream/video1";
     private static final String ACTION_VIEW = "androidx.media3.demo.gl.action.VIEW";
     private static final String EXTENSION_EXTRA = "extension";
@@ -72,7 +74,6 @@ public final class VideoActivity extends Activity {
 
     @Nullable
     private PlayerView playerView;
-    private TextView videoDesc;
     @Nullable
     private VideoProcessingGLSurfaceView videoProcessingGLSurfaceView;
 
@@ -85,10 +86,11 @@ public final class VideoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_activity);
         playerView = findViewById(R.id.player_view);
-        videoDesc = findViewById(R.id.video_description);
+        TextView videoDesc = findViewById(R.id.video_description);
 
         if (getIntent().hasExtra(ARG_VIDEO)) {
             DaayaVideo video = getIntent().getParcelableExtra(ARG_VIDEO);
+            assert video != null;
             videoDesc.setText(video.description);
         }
         String url = getIntent().getStringExtra(ARG_VIDEO_URL);
@@ -153,8 +155,7 @@ public final class VideoActivity extends Activity {
     private void initializePlayer() {
         Intent intent = getIntent();
         String action = intent.getAction();
-        Uri uri =
-                ACTION_VIEW.equals(action)
+        Uri uri = ACTION_VIEW.equals(action)
                         ? requireNonNull(intent.getData())
                         : Uri.parse(mediaUri);
         DrmSessionManager drmSessionManager;

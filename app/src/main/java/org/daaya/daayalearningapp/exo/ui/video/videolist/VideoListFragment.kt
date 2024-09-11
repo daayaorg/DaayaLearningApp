@@ -2,6 +2,7 @@ package org.daaya.daayalearningapp.exo.ui.video.videolist
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,10 +12,14 @@ import androidx.activity.addCallback
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import dagger.hilt.android.AndroidEntryPoint
 import org.daaya.daayalearningapp.exo.DaayaAndroidApplication
 import org.daaya.daayalearningapp.exo.databinding.FragmentVideoListBinding
+import org.daaya.daayalearningapp.exo.network.objects.DaayaVideo
 import org.daaya.daayalearningapp.exo.ui.video.VideoActivity
 
 /**
@@ -23,12 +28,14 @@ import org.daaya.daayalearningapp.exo.ui.video.VideoActivity
  * the [RecyclerView] using LinearLayoutManager in a small screen
  * and shows items using GridLayoutManager in a large screen.
  */
+@AndroidEntryPoint
 class VideoListFragment : Fragment(), VideoListAdapter.OnItemClickListener {
-
+    private val TAG = "VideoListFragment"
     private var _binding: FragmentVideoListBinding? = null
-    private lateinit var videoListViewModel: VideoListViewModel
+    private val videoListViewModel: VideoListViewModel by viewModels { VideoListViewModel.Factory}
     private lateinit var callback: OnBackPressedCallback
     private lateinit var textView: TextView
+    private lateinit var swipeToRefresh : SwipeRefreshLayout
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -38,19 +45,29 @@ class VideoListFragment : Fragment(), VideoListAdapter.OnItemClickListener {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?, savedInstanceState: Bundle?): View {
-
-        videoListViewModel = ViewModelProvider(this)[VideoListViewModel::class.java]
         _binding = FragmentVideoListBinding.inflate(inflater, container, false)
         val root: View = binding.root
         val recyclerView = binding.recyclerviewTransform
         textView = binding.textHeader
+        swipeToRefresh = binding.swipeRefresh
+        binding.progressBar.visibility = View.GONE
         recyclerView.adapter = adapter
         videoListViewModel.itemList.observe(viewLifecycleOwner) {
             adapter.hideIcons(videoListViewModel.hideIcons())
             adapter.submitList(it)
+            binding.progressBar.visibility = View.GONE
         }
+
         videoListViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
+        }
+
+        videoListViewModel.progressBarVisibility.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.progressBar.visibility = View.VISIBLE
+            } else {
+                binding.progressBar.visibility = View.GONE
+            }
         }
 
 
@@ -61,6 +78,11 @@ class VideoListFragment : Fragment(), VideoListAdapter.OnItemClickListener {
         }
         callback.isEnabled = true
 
+
+        swipeToRefresh.setOnRefreshListener {
+            videoListViewModel.refresh(true)
+            swipeToRefresh.isRefreshing = false
+        }
         return root
     }
 
@@ -75,19 +97,6 @@ class VideoListFragment : Fragment(), VideoListAdapter.OnItemClickListener {
             return DaayaAndroidApplication.baseUrl + "api/v1/stream/" + filename
         }
     }
-
-    /*
-    fun onItemClick1(position: Int) {
-        adapter.getItemAt(position)?.apply {
-            val intent = Intent(context, VideoActivity::class.java)
-            intent.putExtra(VideoActivity.ARG_VIDEO, this)
-            intent.putExtra(VideoActivity.ARG_VIDEO_URL, getUrl(filename))
-            ActivityOptionsCompat.makeBasic();
-            ContextCompat.startActivity(requireContext(), intent, null)
-        }
-    }
-
-     */
 
     override fun onItemClick(position: Int) {
         val listOrString = videoListViewModel.select(adapter.getItemAt(position))

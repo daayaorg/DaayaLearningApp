@@ -1,10 +1,13 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id 'com.google.devtools.ksp'
+    id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
-    def SP =  [ "en", "es", "fr" ]
+    def SP = ["en", "es", "fr"]
     namespace 'org.daaya.daayalearningapp.exo'
     compileSdk 34
 
@@ -21,7 +24,7 @@ android {
     buildTypes {
         def BUILD_SUPPORTED_LANGUAGES = "BUILD_SUPPORTED_LANGUAGES"
         def languages = "{"
-        for (String lang:SP)
+        for (String lang : SP)
             languages += "\"" + lang + "\","
         languages += "}"
 
@@ -44,13 +47,26 @@ android {
     }
     buildFeatures {
         viewBinding true
-        buildConfig  true
+        buildConfig true
     }
 }
 
 dependencies {
+    def room_version = "2.6.1"
+
+    implementation libs.androidx.room.runtime
+    ksp "androidx.room:room-compiler:$room_version"
+
+    // Test helpers for Room
+    testImplementation libs.androidx.room.testing
+
+    //  Paging 3 Integration for Room
+    implementation libs.androidx.room.paging
+    implementation libs.androidx.room.ktx
+
     implementation libs.androidx.legacy.support.v4
-    def media3_version = "1.4.0"
+    implementation libs.androidx.room.runtime
+    annotationProcessor libs.androidx.room.compiler
     implementation libs.kotlinx.coroutines.core
     implementation libs.kotlinx.coroutines.android
     implementation libs.androidx.appcompat
@@ -76,69 +92,90 @@ dependencies {
     androidTestImplementation libs.androidx.espresso.core
 
 
-        // For media playback using ExoPlayer
-        implementation libs.androidx.media3.exoplayer
+    // For media playback using ExoPlayer
+    implementation libs.androidx.media3.exoplayer
 
-        // For DASH playback support with ExoPlayer
-        implementation libs.androidx.media3.exoplayer.dash
-        // For HLS playback support with ExoPlayer
-        implementation libs.androidx.media3.exoplayer.hls
-        // For SmoothStreaming playback support with ExoPlayer
-        implementation libs.androidx.media3.exoplayer.smoothstreaming
-        // For RTSP playback support with ExoPlayer
-        implementation libs.androidx.media3.exoplayer.rtsp
-        // For MIDI playback support with ExoPlayer (see additional dependency requirements in
-        // https://github.com/androidx/media/blob/release/libraries/decoder_midi/README.md)
-        //implementation libs.androidx.media3.exoplayer.midi
-        // For ad insertion using the Interactive Media Ads SDK with ExoPlayer
-        implementation libs.androidx.media3.exoplayer.ima
+    // For DASH playback support with ExoPlayer
+    implementation libs.androidx.media3.exoplayer.dash
+    // For HLS playback support with ExoPlayer
+    implementation libs.androidx.media3.exoplayer.hls
+    // For SmoothStreaming playback support with ExoPlayer
+    implementation libs.androidx.media3.exoplayer.smoothstreaming
+    // For RTSP playback support with ExoPlayer
+    implementation libs.androidx.media3.exoplayer.rtsp
+    // For MIDI playback support with ExoPlayer (see additional dependency requirements in
+    // https://github.com/androidx/media/blob/release/libraries/decoder_midi/README.md)
+    //implementation libs.androidx.media3.exoplayer.midi
+    // For ad insertion using the Interactive Media Ads SDK with ExoPlayer
+    implementation libs.androidx.media3.exoplayer.ima
 
-        // For loading data using the Cronet network stack
-        implementation libs.androidx.media3.datasource.cronet
-        // For loading data using the OkHttp network stack
-        implementation libs.androidx.media3.datasource.okhttp
-        // For loading data using librtmp
-        implementation libs.androidx.media3.datasource.rtmp
+    // For loading data using the Cronet network stack
+    implementation libs.androidx.media3.datasource.cronet
+    // For loading data using the OkHttp network stack
+    implementation libs.androidx.media3.datasource.okhttp
+    // For loading data using librtmp
+    implementation libs.androidx.media3.datasource.rtmp
 
-        // For building media playback UIs
-        implementation libs.androidx.media3.ui
-        // For building media playback UIs for Android TV using the Jetpack Leanback library
-        implementation libs.androidx.media3.ui.leanback
+    // For building media playback UIs
+    implementation libs.androidx.media3.ui
+    // For building media playback UIs for Android TV using the Jetpack Leanback library
+    implementation libs.androidx.media3.ui.leanback
 
-        // For exposing and controlling media sessions
-        implementation libs.androidx.media3.session
+    // For exposing and controlling media sessions
+    implementation libs.androidx.media3.session
 
-        // For extracting data from media containers
-        implementation libs.androidx.media3.extractor
+    // For extracting data from media containers
+    implementation libs.androidx.media3.extractor
 
-        // For integrating with Cast
-        implementation libs.androidx.media3.cast
+    // For integrating with Cast
+    implementation libs.androidx.media3.cast
 
-        // For scheduling background operations using Jetpack Work's WorkManager with ExoPlayer
-        implementation libs.androidx.media3.exoplayer.workmanager
+    // For scheduling background operations using Jetpack Work's WorkManager with ExoPlayer
+    implementation libs.androidx.media3.exoplayer.workmanager
 
-        // For transforming media files
-        implementation libs.androidx.media3.transformer
+    // For transforming media files
+    implementation libs.androidx.media3.transformer
 
-        // For applying effects on video frames
-        implementation libs.androidx.media3.effect
+    // For applying effects on video frames
+    implementation libs.androidx.media3.effect
 
-        // For muxing media files
-        implementation libs.androidx.media3.muxer
+    // For muxing media files
+    implementation libs.androidx.media3.muxer
 
-        // Utilities for testing media components (including ExoPlayer components)
-        implementation libs.androidx.media3.test.utils
-        // Utilities for testing media components (including ExoPlayer components) via Robolectric
-        implementation libs.androidx.media3.test.utils.robolectric
+    // Utilities for testing media components (including ExoPlayer components)
+    implementation libs.androidx.media3.test.utils
+    // Utilities for testing media components (including ExoPlayer components) via Robolectric
+    implementation libs.androidx.media3.test.utils.robolectric
 
-        // Common functionality for reading and writing media containers
-        implementation libs.androidx.media3.container
-        // Common functionality for media database components
-        implementation libs.androidx.media3.database
-        // Common functionality for media decoders
-        implementation libs.androidx.media3.decoder
-        // Common functionality for loading data
-        implementation libs.androidx.media3.datasource
-        // Common functionality used across multiple media libraries
-        implementation libs.androidx.media3.common
+    // Common functionality for reading and writing media containers
+    implementation libs.androidx.media3.container
+    // Common functionality for media database components
+    implementation libs.androidx.media3.database
+    // Common functionality for media decoders
+    implementation libs.androidx.media3.decoder
+    // Common functionality for loading data
+    implementation libs.androidx.media3.datasource
+    // Common functionality used across multiple media libraries
+    implementation libs.androidx.media3.common
+
+
+    implementation libs.okhttp
+    implementation(libs.stream.webrtc.android)
+
+    implementation libs.androidx.swiperefreshlayout
+
+    implementation libs.dagger
+    annotationProcessor libs.dagger.compiler
+
+    implementation libs.dagger.android
+    implementation libs.dagger.android.support // if you use the support libraries
+    annotationProcessor libs.dagger.android.processor
+
+    implementation libs.hilt.android
+    kapt libs.hilt.compiler
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes true
 }
