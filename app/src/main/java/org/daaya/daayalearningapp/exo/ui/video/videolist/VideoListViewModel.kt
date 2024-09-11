@@ -2,20 +2,36 @@ package org.daaya.daayalearningapp.exo.ui.video.videolist
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.daaya.daayalearningapp.exo.DaayaAndroidApplication
+import org.daaya.daayalearningapp.exo.data.VideosRepository
 import org.daaya.daayalearningapp.exo.network.DaayaVideoService
 import org.daaya.daayalearningapp.exo.network.objects.DaayaVideo
 import org.daaya.daayalearningapp.exo.ui.video.video_categories.VideoCategoriesViewModel.GetListOrString
 import org.daaya.daayalearningapp.exo.ui.video.video_categories.VideoCategoryRecyclerViewAdapter.Companion.capitalizeFirstLetter
+import timber.log.Timber
 import java.util.Stack
+import javax.inject.Inject
 
-class VideoListViewModel : ViewModel() {
+
+@HiltViewModel
+class VideoListViewModel @Inject constructor(
+    private val repository: VideosRepository,
+    savedStateHandle: SavedStateHandle) : ViewModel() {
     private val _itemList = MutableLiveData<List<String>>()
     val itemList: LiveData<List<String>> = _itemList
+
+    private val _progressBarVisibility = MutableLiveData(true)
+    val progressBarVisibility = _progressBarVisibility
 
     private val _text = MutableLiveData<String>().apply {
         value = ""
@@ -23,16 +39,20 @@ class VideoListViewModel : ViewModel() {
     val text: LiveData<String> = _text
 
     private var taxonomySelection = ""
-    private val daayaVideoService = DaayaVideoService.Creator.newDaayaVideoService(DaayaAndroidApplication.baseUrl)
     private var taxonomySelectionHierarchy = Stack<String>()
+
     //private var singleThreadDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private lateinit var taxonomyDetails: VideoTaxonomyDetails
     private var taxonomyLevel = TaxonomyLevel.AUTHOR
     private fun getAllVideos() {
+        val daayaVideoService = DaayaVideoService.Creator.newDaayaVideoService(DaayaAndroidApplication.baseUrl)
+        progressBarVisibility.value = true
         viewModelScope.launch(Dispatchers.IO) {
             val allVideos: List<DaayaVideo>
             try {
+                progressBarVisibility.value = true
                 allVideos = daayaVideoService.getAllVideos()
+                progressBarVisibility.value = false
                 taxonomyDetails = categorizeVideoList(allVideos)
                 val listOrString = getList()
                 if (listOrString.isList) {
@@ -42,9 +62,10 @@ class VideoListViewModel : ViewModel() {
                 //do nothing
             }
         }
+        progressBarVisibility.value = false
     }
 
-    private fun getNextTaxonomyLevel (): TaxonomyLevel {
+    private fun getNextTaxonomyLevel(): TaxonomyLevel {
         return when (taxonomyLevel) {
             TaxonomyLevel.AUTHOR -> TaxonomyLevel.VIDEOS
             TaxonomyLevel.VIDEOS -> TaxonomyLevel.VIDEO
@@ -52,9 +73,9 @@ class VideoListViewModel : ViewModel() {
         }
     }
 
-    private fun addTaxonomySelection(taxonomy:String) {
+    private fun addTaxonomySelection(taxonomy: String) {
         taxonomySelectionHierarchy.add(taxonomy)
-        val concated = taxonomySelectionHierarchy.map{ capitalizeFirstLetter(it) }
+        val concated = taxonomySelectionHierarchy.map { capitalizeFirstLetter(it) }
             .reduce { acc, item -> "$acc/${item}" }
         _text.value = concated
     }
@@ -71,7 +92,7 @@ class VideoListViewModel : ViewModel() {
     }
 
 
-    private fun getPrevTaxonomyLevel (): TaxonomyLevel {
+    private fun getPrevTaxonomyLevel(): TaxonomyLevel {
         return when (taxonomyLevel) {
             TaxonomyLevel.AUTHOR -> TaxonomyLevel.AUTHOR
             TaxonomyLevel.VIDEOS -> TaxonomyLevel.AUTHOR
@@ -80,10 +101,9 @@ class VideoListViewModel : ViewModel() {
     }
 
 
-
     fun handleBackPressed(): Boolean {
-        if (taxonomySelectionHierarchy.isEmpty()){
-            return  false
+        if (taxonomySelectionHierarchy.isEmpty()) {
+            return false
         }
         taxonomySelectionHierarchy.pop()
         taxonomyLevel = getPrevTaxonomyLevel()
@@ -118,15 +138,16 @@ class VideoListViewModel : ViewModel() {
                 val videosByAuthor = taxonomyDetails.authors[taxonomySelection]
                 val videoList = videosByAuthor?.let {
                     videosByAuthor.map { it.title }
-                }?: emptyList()
+                } ?: emptyList()
                 return GetListOrString(videoList)
             }
+
             TaxonomyLevel.VIDEO -> return GetListOrString(taxonomyDetails.videos[taxonomySelection]?.filename)
             else -> return GetListOrString(emptyList())
         }
     }
 
-    fun hideIcons():Boolean {
+    fun hideIcons(): Boolean {
         return when (taxonomyLevel) {
             TaxonomyLevel.AUTHOR -> false
             TaxonomyLevel.VIDEOS -> true
@@ -200,15 +221,60 @@ class VideoListViewModel : ViewModel() {
                 videos[video.title] = video
 
             }
-            return VideoTaxonomyDetails(taxonomyClasses, taxonomyOrders, taxonomyFamilies, taxonomyTribes, videos, authors)
+            return VideoTaxonomyDetails(
+                taxonomyClasses,
+                taxonomyOrders,
+                taxonomyFamilies,
+                taxonomyTribes,
+                videos,
+                authors
+            )
+        }
+
+        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>,
+                extras: CreationExtras
+            ): T {
+                // Get the Application object from extras
+                val application = checkNotNull(extras[APPLICATION_KEY])
+                // Create a SavedStateHandle for this ViewModel from extras
+                val savedStateHandle = extras.createSavedStateHandle()
+
+                return VideoListViewModel(
+                    (application as DaayaAndroidApplication).videosRepository,
+                    savedStateHandle) as T
+            }
         }
     }
 
-    init{
-        getAllVideos()
+    fun refresh(forceUpdate: Boolean = false){
+        progressBarVisibility.value = true
+        viewModelScope.launch(Dispatchers.IO) {
+            val allVideos: List<DaayaVideo>
+            try {
+                allVideos = repository.getVideos(forceUpdate)
+                taxonomyDetails = categorizeVideoList(allVideos)
+                val listOrString = getList()
+                if (listOrString.isList) {
+                    _itemList.postValue(listOrString.list)
+                }
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
+        }
+        progressBarVisibility.value = false
+        //getAllVideos()
     }
 
-    private enum class TaxonomyLevel  {
+    init {
+        refresh()
+    }
+
+    private enum class TaxonomyLevel {
         AUTHOR, VIDEOS, VIDEO
     }
+
+
 }

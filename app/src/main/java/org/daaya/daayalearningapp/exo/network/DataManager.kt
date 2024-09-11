@@ -2,16 +2,15 @@ package org.daaya.daayalearningapp.exo.network
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
-import org.daaya.daayalearningapp.exo.network.objects.DaayaVideo
+import org.daaya.daayalearningapp.exo.DaayaAndroidApplication.baseUrl
 import timber.log.Timber
 import java.util.concurrent.Executors
 
 
 class DataManager : ViewModel() {
+    //TODO: use inject here
     private val daayaVideoService: DaayaVideoService =
         DaayaVideoService.Creator.newDaayaVideoService(
             baseUrl
@@ -19,7 +18,6 @@ class DataManager : ViewModel() {
 
     companion object {
         var singleThreadDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-        var baseUrl: String = "http://48.217.169.49:8182/"
     }
     fun getAllVideos() {
         viewModelScope.launch(singleThreadDispatcher) {

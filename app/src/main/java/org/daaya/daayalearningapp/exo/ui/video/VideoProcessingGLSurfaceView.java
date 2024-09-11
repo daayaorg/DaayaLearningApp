@@ -24,13 +24,16 @@ import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.TimedValueQueue;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.video.VideoFrameMetadataListener;
 
@@ -50,6 +53,7 @@ import javax.microedition.khronos.opengles.GL10;
  * <p>This view must be created programmatically, as it is necessary to specify whether a context
  * supporting protected content should be created at construction time.
  */
+@UnstableApi
 public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
 
   /** Processes video frames, provided via a GL texture. */
@@ -159,6 +163,7 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
    *
    * @param player The new player, or {@code null} to detach this view.
    */
+  @OptIn(markerClass = UnstableApi.class)
   public void setPlayer(@Nullable ExoPlayer player) {
     if (player == this.player) {
       return;
@@ -217,6 +222,7 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
     }
   }
 
+  @UnstableApi
   private final class VideoRenderer implements Renderer, VideoFrameMetadataListener {
 
     private final VideoProcessor videoProcessor;
@@ -298,10 +304,10 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
 
     @Override
     public void onVideoFrameAboutToBeRendered(
-        long presentationTimeUs,
-        long releaseTimeNs,
-        Format format,
-        @Nullable MediaFormat mediaFormat) {
+            long presentationTimeUs,
+            long releaseTimeNs,
+            @NonNull Format format,
+            @Nullable MediaFormat mediaFormat) {
       sampleTimestampQueue.add(releaseTimeNs, presentationTimeUs);
     }
   }

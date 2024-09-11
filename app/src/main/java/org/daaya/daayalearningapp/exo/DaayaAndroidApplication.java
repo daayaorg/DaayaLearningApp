@@ -14,15 +14,19 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
 
+import org.daaya.daayalearningapp.exo.data.DefaultVideosRepository;
 import org.daaya.daayalearningapp.exo.data.shared.PersistentPreference;
-import org.daaya.daayalearningapp.exo.network.DaayaVideoService;
 import org.daaya.daayalearningapp.exo.utils.DeviceUtil;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.HiltAndroidApp;
 import timber.log.Timber;
 
+@HiltAndroidApp
 public class DaayaAndroidApplication extends MultiDexApplication implements Application.ActivityLifecycleCallbacks {
-
-    public static String baseUrl = "http://48.217.169.49:8182/";
+    public @Inject DefaultVideosRepository videosRepository;
+    public static String baseUrl = "https://api.daaya.org/";
 
     private static boolean backgrounded = true;
 
@@ -33,7 +37,8 @@ public class DaayaAndroidApplication extends MultiDexApplication implements Appl
         super.onCreate();
 
         if (BuildConfig.DEBUG) {
-            Timber.plant(new Timber.DebugTree());
+            Timber.DebugTree tree = new Timber.DebugTree();
+            Timber.plant(tree);
         }
         //JodaTimeAndroid.init(this);
 
