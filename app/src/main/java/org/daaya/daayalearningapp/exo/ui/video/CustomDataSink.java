@@ -6,7 +6,6 @@ import androidx.media3.datasource.DataSink;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.cache.Cache;
 import androidx.media3.datasource.cache.CacheDataSink;
-import androidx.media3.test.utils.FailOnCloseDataSink;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @UnstableApi
 public final class CustomDataSink implements DataSink {
 
-  /** Factory to create a {@link FailOnCloseDataSink}. */
+  /** Factory to create a {@link CustomDataSink}. */
   public static final class Factory implements DataSink.Factory {
 
     private final Cache cache;

@@ -4,12 +4,11 @@ converterGson = "2.9.0"
 dagger = "2.52"
 daggerCompiler = "2.52"
 googleWebrtc = '1.0.23995'
-#googleWebrtc='1.0.26405'
 gson = "2.10.1"
 hiltAndroid = "2.52"
 hiltCompiler = "2.52"
 jodaTime = "2.12.7"
-agp = "8.5.2"
+agp = "8.6.0"
 kotlin = "2.0.20"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -61,7 +60,6 @@ androidx-media3-muxer = { module = "androidx.media3:media3-muxer", version.ref =
 androidx-media3-exoplayer-workmanager = { module = "androidx.media3:media3-exoplayer-workmanager", version.ref = "media3ExoplayerHls" }
 androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3ExoplayerHls" }
 androidx-media3-extractor = { module = "androidx.media3:media3-extractor", version.ref = "media3ExoplayerHls" }
-androidx-media3-test-utils-robolectric = { module = "androidx.media3:media3-test-utils-robolectric", version.ref = "media3ExoplayerHls" }
 androidx-media3-test-utils = { module = "androidx.media3:media3-test-utils", version.ref = "media3ExoplayerHls" }
 androidx-media3-transformer = { module = "androidx.media3:media3-transformer", version.ref = "media3ExoplayerHls" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3ExoplayerHls" }
