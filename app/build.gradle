@@ -1,21 +1,19 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
     id 'com.google.devtools.ksp'
-    id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
 }
 
 android {
     def SP = ["en", "es", "fr"]
     namespace 'org.daaya.daayalearningapp.exo'
-    compileSdk 35
+    compileSdk 37
 
     defaultConfig {
         applicationId "org.daaya.daayalearningapp.exo"
         minSdk 24
-        targetSdk 35
-        versionCode 3
+        targetSdk 37
+        versionCode 6
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -38,24 +36,30 @@ android {
             buildConfigField "String[]", BUILD_SUPPORTED_LANGUAGES, languages
         }
     }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
+
     buildFeatures {
         viewBinding true
         buildConfig true
     }
+    lint {
+        abortOnError false
+    }
 }
 
 dependencies {
-    def room_version = "2.6.1"
+    def room_version = "2.8.4"
 
     implementation libs.androidx.room.runtime
     ksp "androidx.room:room-compiler:$room_version"
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
 
     // Test helpers for Room
     testImplementation libs.androidx.room.testing
@@ -163,17 +167,12 @@ dependencies {
     implementation libs.androidx.swiperefreshlayout
 
     implementation libs.dagger
-    kapt libs.dagger.compiler
+    ksp libs.dagger.compiler
 
     implementation libs.dagger.android
     implementation libs.dagger.android.support // if you use the support libraries
-    kapt libs.dagger.android.processor
+    ksp libs.dagger.android.processor
 
-    implementation libs.hilt.android
-    kapt libs.hilt.compiler
-}
-
-// Allow references to generated code
-kapt {
-    correctErrorTypes true
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
 }

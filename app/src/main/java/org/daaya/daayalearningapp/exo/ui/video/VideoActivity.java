@@ -122,8 +122,12 @@ public final class VideoActivity extends AppCompatActivity {
 
         Context context = getApplicationContext();
         boolean requestSecureSurface = getIntent().hasExtra(DRM_SCHEME_EXTRA);
-        if (requestSecureSurface && !GlUtil.isProtectedContentExtensionSupported(context)) {
-            Toast.makeText(context, R.string.error_protected_content_extension_not_supported, Toast.LENGTH_LONG).show();
+        try {
+            if (requestSecureSurface && !GlUtil.isProtectedContentExtensionSupported(context)) {
+                Toast.makeText(context, R.string.error_protected_content_extension_not_supported, Toast.LENGTH_LONG).show();
+            }
+        } catch (GlUtil.GlException e) {
+            throw new RuntimeException(e);
         }
 
         VideoProcessingGLSurfaceView videoProcessingGLSurfaceView =

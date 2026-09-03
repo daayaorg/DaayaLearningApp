@@ -1,40 +1,41 @@
 [versions]
-adapterRxjava = "2.1.0"
-converterGson = "2.9.0"
-dagger = "2.52"
-daggerCompiler = "2.52"
+adapterRxjava = "3.0.0"
+converterGson = "3.0.0"
+dagger = "2.60.1"
+daggerCompiler = "2.60.1"
+desugar_jdk_libs = "2.1.5"
 googleWebrtc = '1.0.23995'
-gson = "2.10.1"
-hiltAndroid = "2.52"
-hiltCompiler = "2.52"
-jodaTime = "2.12.7"
-agp = "8.6.0"
-kotlin = "2.0.20"
-coreKtx = "1.13.1"
+gson = "2.14.0"
+hiltAndroid = "2.60.1"
+hiltCompiler = "2.60.1"
+jodaTime = "2.14.3"
+agp = "9.3.2"
+kotlin = "2.4.10"
+coreKtx = "1.19.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
-espressoCore = "3.6.1"
-appcompat = "1.7.0"
-kotlinxCoroutinesCore = "1.8.1"
-kotlinxCoroutinesAndroid = "1.8.1"
-loggingInterceptor = "3.12.6"
-material = "1.12.0"
-media3ExoplayerHls = "1.4.1"
+espressoCore = "3.7.0"
+appcompat = "1.8.0"
+kotlinxCoroutinesCore = "1.11.0"
+kotlinxCoroutinesAndroid = "1.11.0"
+loggingInterceptor = "5.5.0"
+material = "1.14.0"
+media3ExoplayerHls = "1.11.0"
 multidex = "2.0.1"
-okhttp = "4.12.0"
-recyclerview = "1.3.2"
-constraintlayout = "2.1.4"
-lifecycleLivedataKtx = "2.8.5"
-lifecycleViewmodelKtx = "2.8.5"
-navigationFragmentKtx = "2.8.0"
-navigationUiKtx = "2.8.0"
-retrofit = "2.11.0"
-streamWebrtcAndroid = "1.1.3"
-swiperefreshlayout = "1.2.0-alpha01"
+okhttp = "5.5.0"
+recyclerview = "1.4.0"
+constraintlayout = "2.2.2"
+lifecycleLivedataKtx = "2.11.0"
+lifecycleViewmodelKtx = "2.11.0"
+navigationFragmentKtx = "2.10.0"
+navigationUiKtx = "2.10.0"
+retrofit = "3.0.0"
+streamWebrtcAndroid = "1.3.10"
+swiperefreshlayout = "1.2.0"
 timber = "5.0.1"
 legacySupportV4 = "1.0.0"
-roomRuntime = "2.6.1"
-roomCompiler = "2.6.1"
+roomRuntime = "2.8.4"
+roomCompiler = "2.8.4"
 
 [libraries]
 adapter-rxjava = { module = "com.squareup.retrofit2:adapter-rxjava", version.ref = "adapterRxjava" }
@@ -75,8 +76,10 @@ dagger-android = { module = "com.google.dagger:dagger-android", version.ref = "d
 dagger-android-processor = { module = "com.google.dagger:dagger-android-processor", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerCompiler" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 google-webrtc = { module = "org.webrtc:google-webrtc", version.ref = "googleWebrtc" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 joda-time = { module = "joda-time:joda-time", version.ref = "jodaTime" }
